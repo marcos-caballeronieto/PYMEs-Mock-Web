@@ -4,7 +4,7 @@ import {
   Activity, Users, Calendar as CalendarIcon, ArrowUpRight, 
   Search, ShieldAlert, CheckCircle2, MessageSquare, Database, 
   Server, Smartphone, Mail, XCircle, RotateCw, Globe,
-  LayoutList, CalendarDays, UserSquare2
+  LayoutList, CalendarDays, UserSquare2, Plus
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -32,6 +32,13 @@ export default function AdminDashboard() {
   const [filterSpecialty, setFilterSpecialty] = useState<string>('Todas');
   const [viewMode, setViewMode] = useState<'list' | 'calendar' | 'patients'>('list');
   const [loading, setLoading] = useState(true);
+  
+  // Create Appointment State
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    name: '', email: '', phone: '', specialty: 'Medicina General', date: '13 Mar', time: '10:30'
+  });
 
   const fetchData = async () => {
     try {
@@ -71,6 +78,31 @@ export default function AdminDashboard() {
       fetchData(); // Recargar datos
     } catch (e) {
       toast.error("Error al cancelar");
+    }
+  };
+
+  const handleCreateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreateLoading(true);
+    try {
+      const res = await fetch('/api/admin/appointments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(createForm)
+      });
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Error desconocido");
+      }
+      
+      toast.success("Cita creada", { description: "La cita se ha guardado correctamente." });
+      setIsCreateModalOpen(false);
+      fetchData();
+    } catch (e: any) {
+      toast.error("Error al crear la cita", { description: e.message });
+    } finally {
+      setCreateLoading(false);
     }
   };
 
@@ -187,6 +219,12 @@ export default function AdminDashboard() {
             <h2 className="text-xl font-bold flex items-center gap-2">
               <CalendarIcon className="w-5 h-5 text-zinc-400" /> Registro de Citas e Hiper-automatización
             </h2>
+            <button 
+              onClick={() => setIsCreateModalOpen(true)}
+              className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg font-bold transition-all shadow-lg shadow-primary/20 text-sm"
+            >
+              <Plus className="w-4 h-4" /> Crear Nueva Cita
+            </button>
           </div>
 
           <div className="flex flex-col md:flex-row justify-between gap-4 bg-zinc-900 border border-white/10 p-2 rounded-xl">
@@ -401,6 +439,68 @@ export default function AdminDashboard() {
           </div>
         </section>
       </main>
+
+      {/* CREATE MODAL */}
+      {isCreateModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-zinc-900 border border-white/10 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
+            <div className="p-4 border-b border-white/10 flex justify-between items-center bg-zinc-950/50">
+              <h3 className="font-bold text-lg flex items-center gap-2">
+                <Plus className="w-5 h-5 text-primary" /> Crear Manualmente
+              </h3>
+              <button onClick={() => setIsCreateModalOpen(false)} className="text-zinc-500 hover:text-white transition-colors">
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleCreateSubmit} className="p-6 space-y-4">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1 block">Paciente (Nombre)</label>
+                  <input required type="text" value={createForm.name} onChange={e => setCreateForm({...createForm, name: e.target.value})} className="w-full bg-zinc-950 border border-white/10 rounded-lg py-2 px-3 text-sm text-white focus:border-primary focus:outline-none" placeholder="Carlos Pérez..." />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1 block">Email</label>
+                    <input required type="email" value={createForm.email} onChange={e => setCreateForm({...createForm, email: e.target.value})} className="w-full bg-zinc-950 border border-white/10 rounded-lg py-2 px-3 text-sm text-white focus:border-primary focus:outline-none" placeholder="carlos@mail.com" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1 block">Teléfono</label>
+                    <input required type="text" value={createForm.phone} onChange={e => setCreateForm({...createForm, phone: e.target.value})} className="w-full bg-zinc-950 border border-white/10 rounded-lg py-2 px-3 text-sm text-white focus:border-primary focus:outline-none" placeholder="+34..." />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1 block">Especialidad</label>
+                  <select value={createForm.specialty} onChange={e => setCreateForm({...createForm, specialty: e.target.value})} className="w-full bg-zinc-950 border border-white/10 rounded-lg py-2 px-3 text-sm text-white focus:border-primary focus:outline-none">
+                    {["Medicina General", "Fisioterapia", "Psicología", "Análisis Clínicos"].map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1 block">Día</label>
+                    <select value={createForm.date} onChange={e => setCreateForm({...createForm, date: e.target.value})} className="w-full bg-zinc-950 border border-white/10 rounded-lg py-2 px-3 text-sm text-white focus:border-primary focus:outline-none">
+                      {MOCK_DATES.map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1 block">Hora</label>
+                    <select value={createForm.time} onChange={e => setCreateForm({...createForm, time: e.target.value})} className="w-full bg-zinc-950 border border-white/10 rounded-lg py-2 px-3 text-sm text-white focus:border-primary focus:outline-none">
+                      {MOCK_TIMES.map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="pt-4 flex gap-3 justify-end">
+                <button type="button" onClick={() => setIsCreateModalOpen(false)} className="px-4 py-2 text-sm font-bold text-zinc-400 hover:text-white transition-colors">Cancelar</button>
+                <button type="submit" disabled={createLoading} className="bg-primary text-white px-6 py-2 rounded-lg font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all disabled:opacity-50">
+                  {createLoading ? 'Guardando...' : 'Crear y Notificar'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

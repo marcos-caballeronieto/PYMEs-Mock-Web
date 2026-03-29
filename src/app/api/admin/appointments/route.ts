@@ -79,3 +79,54 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { name, email, phone, specialty, date, time } = body;
+
+    if (!name || !email || !phone || !specialty || !date || !time) {
+      return NextResponse.json({ error: 'Faltan campos obligatorios' }, { status: 400 });
+    }
+
+    // Check if the slot is taken
+    const clash = await prisma.appointment.findFirst({
+      where: {
+        date,
+        time,
+        specialty,
+        status: { not: 'CANCELLED' }
+      }
+    });
+
+    if (clash) {
+      return NextResponse.json({ error: 'El horario está ocupado' }, { status: 409 });
+    }
+
+    // Upsert user
+    const user = await prisma.user.upsert({
+      where: { email },
+      update: { name, phone },
+      create: { name, email, phone }
+    });
+
+    // Create appointment
+    const appointment = await prisma.appointment.create({
+      data: {
+        userId: user.id,
+        specialty,
+        date,
+        time,
+        status: 'CONFIRMED'
+      },
+      include: {
+        user: true
+      }
+    });
+
+    return NextResponse.json({ success: true, appointment }, { status: 201 });
+  } catch (error) {
+    console.error('Error creating appt:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
