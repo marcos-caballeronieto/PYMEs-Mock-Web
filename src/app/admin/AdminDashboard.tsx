@@ -4,8 +4,9 @@ import {
   Activity, Users, Calendar as CalendarIcon, ArrowUpRight, 
   Search, ShieldAlert, CheckCircle2, MessageSquare, Database, 
   Server, Smartphone, Mail, XCircle, RotateCw, Globe,
-  LayoutList, CalendarDays, UserSquare2, Plus
+  LayoutList, CalendarDays, UserSquare2, Plus, ArrowLeft
 } from 'lucide-react';
+import Link from 'next/link';
 import { toast } from 'sonner';
 
 // Types
@@ -129,9 +130,14 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col">
       <header className="px-6 py-4 flex items-center justify-between border-b border-white/10 bg-zinc-950/60 sticky top-0 z-50 backdrop-blur-md">
-        <div className="flex items-center gap-2 font-bold text-xl tracking-tight text-white hover:text-primary transition-colors">
-          <Activity className="h-6 w-6 text-primary" />
-          <span>SmartClinic <span className="text-zinc-500 font-normal">| Admin Portal</span></span>
+        <div className="flex items-center gap-6">
+          <Link href="/" className="flex items-center gap-2 text-sm font-bold text-zinc-400 hover:text-white transition-colors bg-zinc-900 hover:bg-zinc-800 px-3 py-1.5 rounded-lg border border-white/5">
+            <ArrowLeft className="w-4 h-4" /> Web
+          </Link>
+          <div className="flex items-center gap-2 font-bold text-xl tracking-tight text-white hover:text-primary transition-colors">
+            <Activity className="h-6 w-6 text-primary" />
+            <span>SmartClinic <span className="text-zinc-500 font-normal">| Admin Portal</span></span>
+          </div>
         </div>
         <div className="flex items-center gap-4 text-sm font-medium">
           <span className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">SC</span>
