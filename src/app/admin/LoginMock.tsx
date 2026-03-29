@@ -2,12 +2,15 @@
 import { useState } from 'react';
 import { Lock, ShieldCheck, Activity } from 'lucide-react';
 import { toast } from 'sonner';
+import { loginAdmin } from './actions';
+import { useRouter } from 'next/navigation';
 
-export default function LoginMock({ onLogin }: { onLogin: () => void }) {
+export default function LoginMock() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!password) {
       toast.error('Introduce una contraseña');
@@ -15,12 +18,19 @@ export default function LoginMock({ onLogin }: { onLogin: () => void }) {
     }
     
     setLoading(true);
-    // Simular red
-    setTimeout(() => {
+    
+    // Simulate slight network delay for effect
+    await new Promise(r => setTimeout(r, 600));
+    
+    const res = await loginAdmin(password);
+    
+    if (res.success) {
+      toast.success('Acceso permitido', { description: 'Bienvenido al panel de administración.' });
+      router.refresh(); // Reloads the server component to read the new cookie
+    } else {
+      toast.error(res.error || 'Acceso denegado');
       setLoading(false);
-      toast.success('Acceso permitido', { description: 'Bienvenido al panel de administración mock.' });
-      onLogin(); // Cualquier clave funciona según reqs
-    }, 800);
+    }
   };
 
   return (
@@ -64,7 +74,7 @@ export default function LoginMock({ onLogin }: { onLogin: () => void }) {
         </form>
 
         <p className="text-center text-xs text-zinc-600 font-medium mt-6">
-          Este portal está utilizando un Auth Mock temporal. Más adelante se integrará de forma real vía <strong>Supabase Auth</strong>.
+          La contraseña definida es <strong>admin123</strong>.
         </p>
       </div>
     </div>

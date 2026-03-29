@@ -1,13 +1,13 @@
-"use client";
-import { useState } from 'react';
-import LoginMock from './LoginMock';
-import AdminDashboard from './AdminDashboard';
+import { cookies } from "next/headers";
+import LoginMock from "./LoginMock";
+import AdminDashboard from "./AdminDashboard";
 
-export default function AdminPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+export default async function AdminPage() {
+  const cookieStore = await cookies();
+  const isAdmin = cookieStore.get("admin_auth")?.value === "1";
 
-  if (!isAuthenticated) {
-    return <LoginMock onLogin={() => setIsAuthenticated(true)} />;
+  if (!isAdmin) {
+    return <LoginMock />;
   }
 
   return <AdminDashboard />;

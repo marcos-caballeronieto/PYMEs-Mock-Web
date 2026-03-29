@@ -9,11 +9,11 @@ Este documento desglosa las fases de desarrollo para la plataforma **SmartClinic
 *   [x] Configuración de Tailwind CSS y Shadcn UI.
 *   [x] Conexión inicial con Supabase (Variables de entorno configuradas).
 *   [x] Estructura de carpetas según el Master Plan.
-*   [ ] Diseño de la Landing Page principal (Hero, Servicios, CTA).
+*   [x] Diseño de la Landing Page principal (Hero, Servicios, CTA).
 
 ## 🟡 Fase 2: Motor de Datos y Autenticación (Supabase y Auth Real)
 *   [x] Motor Base de Datos Provisional (Prisma + SQLite implementado).
-*   [ ] Migración del esquema a Supabase (Tablas: `clinics`, `patients`, `appointments`).
+*   [x] Migración del esquema a Supabase (Tablas: `clinics`, `patients`, `appointments`).
 *   [ ] Configuración de Row Level Security (RLS) para proteger los datos médicos.
 *   [ ] Sistema de log-in para clientes con correo electrónico y contraseña. Para almacenar citas y otra información.
 *   [ ] Flujo de autenticación para administradores (/admin) vía Supabase Auth.
