@@ -1,23 +1,53 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Calendar as CalendarIcon, Clock, ChevronRight, CheckCircle2, User, Phone, Mail, Loader2, ArrowLeft } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, ChevronRight, ChevronLeft, CheckCircle2, User, Phone, Mail, Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 const SPECIALTIES = ["Medicina General", "Fisioterapia", "Psicología", "Análisis Clínicos"];
-const MOCK_DATES = [
-  { id: "d1", label: "Lunes", date: "11 Mar" },
-  { id: "d2", label: "Martes", date: "12 Mar" },
-  { id: "d3", label: "Miércoles", date: "13 Mar" },
-  { id: "d4", label: "Jueves", date: "14 Mar" },
-  { id: "d5", label: "Viernes", date: "15 Mar" }
-];
+
+const getInitialWeekOffset = () => {
+  const dayOfWeek = new Date().getDay();
+  return dayOfWeek === 0 || dayOfWeek === 6 ? 1 : 0;
+};
+
+const getCurrentWeekDays = (weekOffset = 0) => {
+  const dates = [];
+  let d = new Date();
+  
+  // Apply week offset
+  d.setDate(d.getDate() + (weekOffset * 7));
+  
+  const dayOfWeek = d.getDay();
+  // Calculate Monday of that week
+  const diff = d.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+  let startOfWeek = new Date(d);
+  startOfWeek.setDate(diff);
+
+  for (let i = 0; i < 5; i++) {
+    const current = new Date(startOfWeek);
+    current.setDate(startOfWeek.getDate() + i);
+    
+    const dayName = new Intl.DateTimeFormat("es-ES", { weekday: "long" }).format(current);
+    const dayNum = current.getDate();
+    const monthName = new Intl.DateTimeFormat("es-ES", { month: "short" }).format(current);
+    
+    dates.push({
+      id: `d${i + 1}`,
+      label: dayName.charAt(0).toUpperCase() + dayName.slice(1),
+      date: `${dayNum} ${monthName.charAt(0).toUpperCase() + monthName.slice(1)}`,
+      isPast: current < new Date(new Date().setHours(0,0,0,0))
+    });
+  }
+  return dates;
+};
 const MOCK_TIMES = ["09:00", "10:30", "12:00", "16:00", "17:30", "18:45"];
 
 export default function ReservarPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [loadingTimes, setLoadingTimes] = useState(false);
+  const [weekOffset, setWeekOffset] = useState(() => getInitialWeekOffset());
   const [bookedSpots, setBookedSpots] = useState<{date: string, time: string}[]>([]);
   const [formData, setFormData] = useState({
     specialty: "",
@@ -186,7 +216,24 @@ export default function ReservarPage() {
                   
                   <div className="space-y-6 md:pl-14">
                     <div>
-                      <p className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-4">Calendario Semanal</p>
+                      <div className="flex items-center justify-between mb-4">
+                        <p className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Calendario Semanal</p>
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => setWeekOffset(w => w - 1)} 
+                            disabled={weekOffset <= 0}
+                            className="p-1.5 rounded-lg border border-zinc-200 text-zinc-500 hover:bg-zinc-100 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+                          >
+                            <ChevronLeft className="w-5 h-5"/>
+                          </button>
+                          <button 
+                            onClick={() => setWeekOffset(w => w + 1)} 
+                            className="p-1.5 rounded-lg border border-zinc-200 text-zinc-500 hover:bg-zinc-100 transition-all"
+                          >
+                            <ChevronRight className="w-5 h-5"/>
+                          </button>
+                        </div>
+                      </div>
                       
                       {loadingTimes ? (
                         <div className="w-full overflow-hidden opacity-70">
@@ -221,9 +268,9 @@ export default function ReservarPage() {
                             className="w-full overflow-x-auto pb-4 snap-x relative"
                           >
                             <div className="grid grid-cols-5 gap-3 sm:gap-4 min-w-[500px] sm:min-w-[600px] px-1">
-                              {MOCK_DATES.map((d) => (
-                                <div key={d.id} className="flex flex-col gap-3 snap-start relative">
-                                  <div className="text-center font-bold text-zinc-700 bg-zinc-100/80 p-3 rounded-xl border border-zinc-200">
+                              {getCurrentWeekDays(weekOffset).map((d) => (
+                                <div key={d.id} className={`flex flex-col gap-3 snap-start relative ${d.isPast ? "opacity-50 grayscale" : ""}`}>
+                                  <div className={`text-center font-bold p-3 rounded-xl border ${d.isPast ? "bg-zinc-100 border-zinc-200 text-zinc-400" : "bg-zinc-100/80 border-zinc-200 text-zinc-700"}`}>
                                     <div className="text-[10px] sm:text-xs uppercase tracking-widest text-zinc-500 mb-1">{d.label}</div>
                                     <div className="text-sm sm:text-base">{d.date}</div>
                                   </div>
@@ -235,7 +282,7 @@ export default function ReservarPage() {
                                       return (
                                         <button
                                           key={`${d.id}-${t}`}
-                                          disabled={isBooked}
+                                          disabled={isBooked || d.isPast}
                                           onClick={(e) => {
                                             e.preventDefault();
                                             updateForm("date", d.date);
@@ -243,17 +290,17 @@ export default function ReservarPage() {
                                           }}
                                           className={`
                                             py-2.5 sm:py-3 rounded-lg font-bold border-2 transition-all text-xs sm:text-sm w-full
-                                            ${isBooked 
-                                              ? "bg-red-50 border-red-100 text-red-500/50 cursor-not-allowed line-through" 
+                                            ${(isBooked || d.isPast)
+                                              ? "bg-red-50/50 border-red-50 text-red-500/30 cursor-not-allowed line-through" 
                                               : isSelected
                                                 ? "bg-primary border-primary text-white shadow-lg shadow-primary/30"
                                                 : "bg-emerald-50 border-emerald-100 text-emerald-600 hover:bg-emerald-500 hover:text-white hover:border-emerald-500 hover:shadow-lg hover:-translate-y-0.5"
                                             }
                                           `}
                                         >
-                                          {t}
+                                          {isBooked ? "Ocupado" : d.isPast ? "Pasado" : t}
                                         </button>
-                                      )
+                                      );
                                     })}
                                   </div>
                                 </div>

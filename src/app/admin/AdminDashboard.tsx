@@ -4,10 +4,15 @@ import {
   Activity, Users, Calendar as CalendarIcon, ArrowUpRight, 
   Search, ShieldAlert, CheckCircle2, MessageSquare, Database, 
   Server, Smartphone, Mail, XCircle, RotateCw, Globe,
-  LayoutList, CalendarDays, UserSquare2, Plus, ArrowLeft
+  LayoutList, CalendarDays, UserSquare2, Plus, ArrowLeft, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
+
+const getInitialWeekOffset = () => {
+  const dayOfWeek = new Date().getDay();
+  return dayOfWeek === 0 || dayOfWeek === 6 ? 1 : 0;
+};
 
 // Types
 type Stats = {
@@ -32,13 +37,21 @@ export default function AdminDashboard() {
   const [search, setSearch] = useState('');
   const [filterSpecialty, setFilterSpecialty] = useState<string>('Todas');
   const [viewMode, setViewMode] = useState<'list' | 'calendar' | 'patients'>('list');
+  const [weekOffset, setWeekOffset] = useState(() => getInitialWeekOffset());
   const [loading, setLoading] = useState(true);
   
   // Create Appointment State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [createLoading, setCreateLoading] = useState(false);
-  const [createForm, setCreateForm] = useState({
-    name: '', email: '', phone: '', specialty: 'Medicina General', date: '13 Mar', time: '10:30'
+  const [createForm, setCreateForm] = useState(() => {
+    const today = new Date();
+    const dayNum = today.getDate();
+    const monthName = new Intl.DateTimeFormat("es-ES", { month: "short" }).format(today);
+    const dateFormatted = `${dayNum} ${monthName.charAt(0).toUpperCase() + monthName.slice(1)}`;
+    
+    return {
+      name: '', email: '', phone: '', specialty: 'Medicina General', date: dateFormatted, time: '10:30'
+    };
   });
 
   const fetchData = async () => {
@@ -117,7 +130,35 @@ export default function AdminDashboard() {
   });
 
   // Derived data
-  const MOCK_DATES = ["11 Mar", "12 Mar", "13 Mar", "14 Mar", "15 Mar"];
+  const getCurrentWeekDays = (offset = 0) => {
+    const dates = [];
+    let d = new Date();
+
+    // Move across weeks from the default starting week.
+    d.setDate(d.getDate() + (offset * 7));
+
+    const dayOfWeek = d.getDay();
+    // Calculate Monday of current week
+    const diff = d.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+    let startOfWeek = new Date(d);
+    startOfWeek.setDate(diff);
+
+    for (let i = 0; i < 5; i++) {
+      const current = new Date(startOfWeek);
+      current.setDate(startOfWeek.getDate() + i);
+      
+      const dayNum = current.getDate();
+      const monthName = new Intl.DateTimeFormat("es-ES", { month: "short" }).format(current);
+      
+      dates.push({
+        date: `${dayNum} ${monthName.charAt(0).toUpperCase() + monthName.slice(1)}`,
+        isPast: current < new Date(new Date().setHours(0,0,0,0))
+      });
+    }
+    return dates;
+  };
+
+  const MOCK_DATES = getCurrentWeekDays(weekOffset);
   const MOCK_TIMES = ["09:00", "10:30", "12:00", "16:00", "17:30", "18:45"];
 
   const getAppointmentsForSlot = (d: string, t: string) => {
@@ -357,17 +398,33 @@ export default function AdminDashboard() {
 
             {viewMode === 'calendar' && (
               <div className="p-6 overflow-x-auto min-h-[400px]">
+                <div className="flex items-center justify-end gap-2 mb-4">
+                  <button
+                    onClick={() => setWeekOffset(w => w - 1)}
+                    className="p-1.5 rounded-lg border border-white/10 text-zinc-400 hover:bg-zinc-800 transition-all"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => setWeekOffset(w => w + 1)}
+                    className="p-1.5 rounded-lg border border-white/10 text-zinc-400 hover:bg-zinc-800 transition-all"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
                 <div className="grid grid-cols-5 gap-4 min-w-[800px]">
-                  {MOCK_DATES.map((d) => (
-                    <div key={d} className="flex flex-col gap-3">
-                      <div className="text-center font-bold text-zinc-400 bg-zinc-950 p-3 rounded-xl border border-white/5">
-                        {d}
+                  {MOCK_DATES.map((dayObj) => (
+                    <div key={dayObj.date} className={`flex flex-col gap-3 ${dayObj.isPast ? 'opacity-50 grayscale' : ''}`}>
+                      <div className={`text-center font-bold p-3 rounded-xl border ${dayObj.isPast ? 'bg-zinc-950 border-white/5 text-zinc-500' : 'bg-zinc-900 border-white/10 text-white'}`}>
+                        {dayObj.date}
+                        {dayObj.isPast && <span className="block text-[10px] uppercase font-normal mt-1 opacity-70">Pasada</span>}
+                        {dayObj.date === createForm.date && <span className="block text-[10px] text-primary uppercase font-bold mt-1">Hoy</span>}
                       </div>
                       <div className="flex flex-col gap-2">
                         {MOCK_TIMES.map((t) => {
-                          const slotApps = getAppointmentsForSlot(d, t);
+                          const slotApps = getAppointmentsForSlot(dayObj.date, t);
                           return (
-                            <div key={`${d}-${t}`} className="min-h-[80px] p-2 bg-zinc-950/50 border border-white/5 rounded-lg flex flex-col gap-1">
+                            <div key={`${dayObj.date}-${t}`} className={`min-h-[80px] p-2 rounded-lg flex flex-col gap-1 border ${dayObj.isPast ? 'bg-zinc-950/20 border-white/5' : 'bg-zinc-950/50 border-white/5'}`}>
                               <span className="text-xs text-zinc-600 font-bold mb-1">{t}</span>
                               {slotApps.length === 0 ? (
                                 <span className="text-[10px] text-zinc-700 italic">Libre</span>
@@ -377,8 +434,10 @@ export default function AdminDashboard() {
                                     key={app.id} 
                                     className={`text-[10px] p-1.5 rounded truncate border ${
                                       app.status === 'CANCELLED' 
-                                      ? 'bg-red-500/10 text-red-400 border-red-500/20 line-through' 
-                                      : 'bg-primary/20 text-blue-200 border-primary/30'
+                                      ? 'bg-red-500/10 text-red-500/70 border-red-500/20 line-through' 
+                                      : dayObj.isPast
+                                        ? 'bg-zinc-800 text-zinc-400 border-zinc-700'
+                                        : 'bg-primary/20 text-blue-200 border-primary/30'
                                     }`}
                                     title={`${app.user.name} - ${app.specialty}`}
                                   >
@@ -485,7 +544,7 @@ export default function AdminDashboard() {
                   <div>
                     <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1 block">Día</label>
                     <select value={createForm.date} onChange={e => setCreateForm({...createForm, date: e.target.value})} className="w-full bg-zinc-950 border border-white/10 rounded-lg py-2 px-3 text-sm text-white focus:border-primary focus:outline-none">
-                      {MOCK_DATES.map(d => <option key={d} value={d}>{d}</option>)}
+                      {MOCK_DATES.map(d => <option key={d.date} value={d.date}>{d.date}</option>)}
                     </select>
                   </div>
                   <div>
