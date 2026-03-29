@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar as CalendarIcon, Clock, ChevronRight, CheckCircle2, User, Phone, Mail, Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -10,11 +10,12 @@ const MOCK_DATES = [
   { id: "tomorrow", label: "Mañana", date: "13 Mar" },
   { id: "next", label: "Jueves", date: "14 Mar" }
 ];
-const MOCK_TIMES = ["09:00", "10:30", "12:00", "16:00", "17:30", "18:45"];
 
 export default function ReservarPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [loadingTimes, setLoadingTimes] = useState(false);
+  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     specialty: "",
     date: "",
@@ -23,6 +24,29 @@ export default function ReservarPage() {
     phone: "",
     email: ""
   });
+
+  useEffect(() => {
+    async function fetchTimes() {
+      if (step !== 2 || !formData.date || !formData.specialty) return;
+      
+      setLoadingTimes(true);
+      setFormData(prev => ({ ...prev, time: "" })); // Reset selected time
+      
+      try {
+        const response = await fetch(`/api/availability?date=${encodeURIComponent(formData.date)}&specialty=${encodeURIComponent(formData.specialty)}`);
+        if (response.ok) {
+          const data = await response.json();
+          setAvailableTimes(data.availableTimes || []);
+        }
+      } catch (error) {
+        console.error("Error cargando horarios:", error);
+      } finally {
+        setLoadingTimes(false);
+      }
+    }
+
+    fetchTimes();
+  }, [step, formData.date, formData.specialty]);
 
   const updateForm = (key: keyof typeof formData, value: string) => {
     setFormData(prev => ({ ...prev, [key]: value }));
@@ -149,19 +173,30 @@ export default function ReservarPage() {
                     {formData.date && (
                       <div className="animate-in fade-in duration-300">
                         <p className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-3">Horas libres</p>
-                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                          {MOCK_TIMES.map((t) => (
-                            <div
-                              key={t}
-                              onClick={() => updateForm("time", t)}
-                              className={`border-2 rounded-xl py-3 cursor-pointer transition-all text-center font-bold
-                                ${formData.time === t ? "border-primary/20 bg-primary/10 text-primary" : "border-zinc-100 hover:border-primary/40 text-zinc-600"}
-                              `}
-                            >
-                              {t}
-                            </div>
-                          ))}
-                        </div>
+                        
+                        {loadingTimes ? (
+                          <div className="flex items-center justify-center p-8 text-primary">
+                            <Loader2 className="w-8 h-8 animate-spin" />
+                          </div>
+                        ) : availableTimes.length > 0 ? (
+                          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                            {availableTimes.map((t) => (
+                              <div
+                                key={t}
+                                onClick={() => updateForm("time", t)}
+                                className={`border-2 rounded-xl py-3 cursor-pointer transition-all text-center font-bold
+                                  ${formData.time === t ? "border-primary/20 bg-primary/10 text-primary" : "border-zinc-100 hover:border-primary/40 text-zinc-600"}
+                                `}
+                              >
+                                {t}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center p-6 border-2 border-dashed border-zinc-200 rounded-xl text-zinc-500">
+                            No quedan horas disponibles para este día y especialidad.
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

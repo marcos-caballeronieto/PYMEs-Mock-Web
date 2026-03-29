@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import prisma from '@/lib/prisma';
 
 // Initialize Resend via environment variable
 const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder');
@@ -16,6 +17,42 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    // 1. Save or update user
+    const user = await prisma.user.upsert({
+      where: { email },
+      update: { name, phone },
+      create: { name, email, phone }
+    });
+
+    // 2. Check availability
+    const existingAppointment = await prisma.appointment.findUnique({
+      where: {
+        date_time_specialty: {
+          date,
+          time,
+          specialty
+        }
+      }
+    });
+
+    if (existingAppointment) {
+      return NextResponse.json(
+        { error: 'Este horario ya no está disponible para esta especialidad.' },
+        { status: 409 } // Conflict
+      );
+    }
+
+    // 3. Create appointment
+    await prisma.appointment.create({
+      data: {
+        userId: user.id,
+        specialty,
+        date,
+        time,
+        status: "CONFIRMED"
+      }
+    });
 
     if (!process.env.RESEND_API_KEY) {
       console.warn("No RESEND_API_KEY configured. Mocking successful email response.");

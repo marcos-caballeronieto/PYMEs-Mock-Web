@@ -14,16 +14,16 @@ Este documento desglosa el plan de acción específico para completar todas las 
   - Configurar hipervínculos funcionales en el Footer (Nosotros, Tecnología, Privacidad, Cookies).
 
 ## Fase 2: Flujo de "Pedir Cita" (Booking Flow)
-- [ ] **Crear ruta `/reservar`:**
+- [x] **Crear ruta `/reservar`:**
   - Desarrollar un formulario rápido y visualmente limpio estilo *Step-by-Step* (paso a paso).
   - **Paso 1:** Seleccionar especialidad (viniendo de la Home o escogida a mano).
   - **Paso 2:** Selección de día/hora de demo (con un componente visual de calendario).
   - **Paso 3:** Recolección de datos y confirmación (que luego conectaremos a n8n y Base de datos).
 
 ## Fase 3: Páginas Secundarias y de Apoyo
-- [ ] **Página "Más Información" (`/nosotros` o `/info`):**
-  - Desarrollar una página estática rápida pero profesional sobre el "equipo médico".
-  - Incluir el valor añadido de nuestra tecnología para los pacientes. No requiere mucha complejidad arquitectónica, priorizar diseño limpio basado en el Home.
+- [x] **Página "Más Información" (`/nosotros` o `/info`):**
+  - Desarrollar una página estática rápida pero profesional sobre el servicio a PYMEs.
+  - Incluir el valor añadido de nuestra tecnología para las empresas. No requiere mucha complejidad arquitectónica, priorizar diseño limpio basado en el Home.
 
 ## Fase 4: Portal Administrativo Mock (`/admin`)
 - [ ] **Login Administrativo (`/admin`):**
