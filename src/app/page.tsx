@@ -300,9 +300,6 @@ export default function Home() {
               <Link href="/info" className="flex items-center justify-center rounded-full bg-white text-zinc-950 hover:bg-zinc-200 px-12 h-16 text-xl font-black shadow-2xl transition-all">
                 MÁS INFORMACIÓN B2B
               </Link>
-              <Link href="/reservar" className="flex items-center justify-center rounded-full text-white border border-white/20 px-12 h-16 text-xl font-bold hover:bg-white/10 transition-all">
-                AGENDAR REUNIÓN
-              </Link>
             </div>
           </div>
         </section>
@@ -339,8 +336,8 @@ export default function Home() {
         <div className="max-w-7xl mx-auto border-t border-zinc-100 mt-16 pt-10 text-center flex flex-col md:flex-row justify-between items-center gap-6 opacity-60">
           <p className="text-sm font-bold tracking-tight">© 2026 SmartClinic OS (Demostración). Todos los derechos reservados.</p>
           <div className="flex gap-8 text-xs font-black tracking-widest uppercase">
-            <a href="#" className="hover:text-primary">Privacidad</a>
-            <a href="#" className="hover:text-primary">Cookies</a>
+            <Link href="/info" className="hover:text-primary">Privacidad</Link>
+            <Link href="/info" className="hover:text-primary">Cookies</Link>
           </div>
         </div>
       </footer>

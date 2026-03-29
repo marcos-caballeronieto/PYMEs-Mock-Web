@@ -3,13 +3,13 @@
 Este documento desglosa el plan de acción específico para completar todas las vistas, flujos de usuario y rutas del Frontend, asegurando que la estructura base de SmartClinic OS sea 100% navegable.
 
 ## Fase 1: Interacciones en la Landing Page
-- [ ] **Tarjetas de Especialidades Dinámicas:** 
+- [x] **Tarjetas de Especialidades Dinámicas:** 
   - Modificar las tarjetas actuales para que, al hacer *hover*, un overlay (o transición suave) muestre información extra sobre los tratamientos.
   - Añadir un botón interactivo de "Pedir Cita" dentro de cada tarjeta apuntando a la especialidad elegida.
-- [ ] **Botones del Header y Hero:**
+- [x] **Botones del Header y Hero:**
   - "Pedir Cita" / "Reservar Ahora": Conectar a la nueva página de reservas (`/reservar`).
   - "Portal Admin": Conectar a la ruta de inicio de sesión (`/admin`).
-- [ ] **Botones B2B y Footer:**
+- [x] **Botones B2B y Footer:**
   - Enlazar "Más Información B2B" y "Agendar Consulta" a modales mock, "mailto:" o formularios de contacto corporativos.
   - Configurar hipervínculos funcionales en el Footer (Nosotros, Tecnología, Privacidad, Cookies).
 
@@ -37,3 +37,9 @@ Este documento desglosa el plan de acción específico para completar todas las 
 - [ ] Agregar estados de "Carga" (*Loading Skeletons*) entre rutas.
 - [ ] Revisión exhaustiva del *Responsive Design* (Móviles y Tablets) de las nuevas páginas creadas.
 - [ ] Componentizar mejor los botones y formularios compartidos (*Reusability*).
+
+## Fase 6: Mejoras Extra de UX y Accesibilidad (Detectadas tras revisión QA)
+- [ ] **Menú Móvil (Hamburger):** Implementar un menú desplegable en el *Navbar* para resoluciones móviles, ya que actualmente los enlaces de navegación se ocultan con `hidden md:flex`.
+- [ ] **Notificaciones Toast:** Integrar `sonner` o similar para mostrar alertas rápidas (ej. "¡Sesión caducada!" o "Formulario enviado con éxito") en las esquinas de la pantalla.
+- [ ] **Accesibilidad (a11y):** Añadir `aria-labels` útiles a los botones solo-icono, y asegurar el contraste en el modo oscuro (forzar tema o darle soporte completo).
+- [ ] **SEO y OpenGraph:** Extender la configuración de `metadata` en el `layout.tsx` para incluir la imagen de previsualización al compartir la web (OpenGraph / X Cards).
