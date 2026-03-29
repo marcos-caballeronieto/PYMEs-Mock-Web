@@ -11,9 +11,11 @@ Este documento desglosa las fases de desarrollo para la plataforma **SmartClinic
 *   [x] Estructura de carpetas según el Master Plan.
 *   [ ] Diseño de la Landing Page principal (Hero, Servicios, CTA).
 
-## 🟡 Fase 2: Motor de Datos y Autenticación (Próximo Paso)
-*   [ ] Implementación del esquema de base de datos en Supabase (Tablas: `clinics`, `patients`, `appointments`).
+## 🟡 Fase 2: Motor de Datos y Autenticación (Supabase y Auth Real)
+*   [x] Motor Base de Datos Provisional (Prisma + SQLite implementado).
+*   [ ] Migración del esquema a Supabase (Tablas: `clinics`, `patients`, `appointments`).
 *   [ ] Configuración de Row Level Security (RLS) para proteger los datos médicos.
+*   [ ] Sistema de log-in para clientes con correo electrónico y contraseña. Para almacenar citas y otra información.
 *   [ ] Flujo de autenticación para administradores (/admin) vía Supabase Auth.
 *   [ ] Middleware de protección de rutas.
 
@@ -30,11 +32,19 @@ Este documento desglosa las fases de desarrollo para la plataforma **SmartClinic
     *   Entrada: Formulario web o mensaje de WhatsApp.
     *   Procesamiento: n8n filtra por urgencia y guarda en un CRM/Google Sheets.
     *   Salida: Alerta a Telegram para la recepción de la clínica.
-*   [ ] **Workflow 2: Recordatorios de Cita Inteligentes:**
+*   [x] **Workflow 2: Recordatorios de Cita Inteligentes:**
     *   Ejecución programada (Cron) que consulta en Supabase las citas de mañana.
     *   Envío masivo personalizado por WhatsApp con opción de confirmación rápida por botón.
-*   [ ] **Workflow 3: Dashboard Semanal de Rendimiento:**
+*   [x] **Workflow 3: Dashboard Semanal de Rendimiento:**
     *   Generación de reportes PDF basados en estadísticas de ocupación y leads convertidos.
+
+## 🟡 Fase 4: Portal Administrativo Básico (Mock B2B Creado)
+*   [x] Panel de Login (Mock) para mostrar intencionalidad de seguridad.
+*   [x] Dashboard con métricas clave y enlace a integraciones.
+*   [x] Visualización de lista de citas en Dashboard.
+*   [ ] Gestión y modificación de citas integrada localmente.
+*   [ ] Exportación de datos a Google Sheets/CSV.
+*   [ ] Integrar enlaces funcionales a las plataformas mostradas en el apartado "Ecosistema Tecnológico" del dashboard.
 
 ## 🔴 Fase 5: Dashboard Administrativo y Refinamiento (UX/UI)
 *   [ ] Panel de gestión de médicos y horarios.

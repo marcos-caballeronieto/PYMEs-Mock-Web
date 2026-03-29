@@ -27,6 +27,53 @@ async function main() {
     return
   }
 
+  if (command === "generate-demo") {
+    console.log("Generando datos simulados realistas...");
+    await prisma.appointment.deleteMany();
+    await prisma.user.deleteMany();
+
+    const SPECIALTIES = ["Medicina General", "Fisioterapia", "Psicología", "Análisis Clínicos"];
+    const DATES = ["11 Mar", "12 Mar", "13 Mar", "14 Mar", "15 Mar"];
+    const TIMES = ["09:00", "10:30", "12:00", "16:00", "17:30", "18:45"];
+    
+    const fakeNames = ["Carlos Martínez", "Lucía Fernández", "Ana Gómez", "Javier Pérez", "Laura Sánchez", "David López", "Isabel Díaz", "Miguel Ruiz"];
+    
+    // Generar usuarios
+    const users = [];
+    for (const name of fakeNames) {
+      const email = `${name.split(" ")[0].toLowerCase()}@example.com`;
+      const user = await prisma.user.create({
+        data: { name, email, phone: "+34 600 " + Math.floor(100000 + Math.random() * 900000) }
+      });
+      users.push(user);
+    }
+
+    // Generar 20 citas aleatorias
+    let created = 0;
+    while (created < 20) {
+      const u = users[Math.floor(Math.random() * users.length)];
+      const s = SPECIALTIES[Math.floor(Math.random() * SPECIALTIES.length)];
+      const d = DATES[Math.floor(Math.random() * DATES.length)];
+      const t = TIMES[Math.floor(Math.random() * TIMES.length)];
+      const isCancelled = Math.random() > 0.85; // 15% canceladas
+
+      try {
+        await prisma.appointment.create({
+          data: {
+            userId: u.id, specialty: s, date: d, time: t,
+            status: isCancelled ? "CANCELLED" : "CONFIRMED"
+          }
+        });
+        created++;
+      } catch (e) {
+        // Ignorar si colisiona y probar otra vez
+      }
+    }
+    
+    console.log(`✅ ¡Éxito! Base de datos inicializada con ${fakeNames.length} pacientes y 20 citas.`);
+    return;
+  }
+
   if (command === "seed") {
     // Leer parámetros o utilizar los de por defecto
     const specialty = args[1] || DEFAULT_SPECIALTY

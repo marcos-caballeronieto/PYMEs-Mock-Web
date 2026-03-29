@@ -26,9 +26,9 @@ Este documento desglosa el plan de acción específico para completar todas las 
   - Incluir el valor añadido de nuestra tecnología para las empresas. No requiere mucha complejidad arquitectónica, priorizar diseño limpio basado en el Home.
 
 ## Fase 4: Portal Administrativo Mock (`/admin`)
-- [ ] **Login Administrativo (`/admin`):**
+- [x] **Login Administrativo (`/admin`):**
   - Crear pantalla de autenticación minimalista para el equipo de doctores/ventas (preparado para integrar con Supabase Auth).
-- [ ] **Dashboard Principal (`/admin/dashboard`):**
+- [x] **Dashboard Principal (`/admin/dashboard`):**
   - Paneles de control para ver las "Citas del Día".
   - Tabla de pacientes ficticios.
   - Interfaz gráfica (estadísticas) de conversiones de leads B2B.
