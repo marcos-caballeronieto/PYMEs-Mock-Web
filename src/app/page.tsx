@@ -1,7 +1,8 @@
-import { ArrowRight, Calendar, Clock, MessageSquare, ShieldCheck, Activity, Brain, Stethoscope, ChevronRight } from "lucide-react";
+import { ArrowRight, Calendar, Clock, MessageSquare, ShieldCheck, Activity, Brain, Stethoscope, ChevronRight, Zap } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { MobileMenu } from "@/components/MobileMenu";
+import { BorderGlowCard } from "@/components/ui/BorderGlowCard";
 
 export default function Home() {
   return (
@@ -74,10 +75,36 @@ export default function Home() {
               </Link>
             </div>
 
-            <div className="pt-8 flex flex-wrap items-center gap-x-10 gap-y-4 text-xs font-black uppercase tracking-widest text-zinc-500">
-              <div className="flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-emerald-500" /> Datos Cifrados</div>
-              <div className="flex items-center gap-2"><Clock className="h-5 w-5 text-primary" /> Triaje AI 24/7</div>
-              <div className="flex items-center gap-2"><Calendar className="h-5 w-5 text-zinc-950" /> Gestión Directa</div>
+            <div className="pt-10 flex flex-col sm:flex-row items-stretch gap-4 w-full z-20 relative">
+              <BorderGlowCard className="flex-1 min-h-[140px]">
+                <div className="p-6 flex flex-col justify-between h-full group/card cursor-default">
+                  <ShieldCheck className="h-8 w-8 text-violet-400 mb-4 group-hover/card:scale-110 group-hover/card:-rotate-6 transition-transform" />
+                  <div>
+                    <h3 className="text-zinc-900 font-bold text-lg leading-tight mb-1">Top Security</h3>
+                    <p className="text-zinc-500 text-xs font-medium">BBDD Cifrada & Privada</p>
+                  </div>
+                </div>
+              </BorderGlowCard>
+              
+              <BorderGlowCard className="flex-1 min-h-[140px]">
+                <div className="p-6 flex flex-col justify-between h-full group/card cursor-default">
+                  <Zap className="h-8 w-8 text-blue-400 mb-4 group-hover/card:scale-110 group-hover/card:rotate-6 transition-transform" />
+                  <div>
+                    <h3 className="text-zinc-900 font-bold text-lg leading-tight mb-1">Triaje I.A.</h3>
+                    <p className="text-zinc-500 text-xs font-medium">Enruta al departamento ideal</p>
+                  </div>
+                </div>
+              </BorderGlowCard>
+              
+              <BorderGlowCard className="flex-1 min-h-[140px]">
+                <div className="p-6 flex flex-col justify-between h-full group/card cursor-default">
+                  <Calendar className="h-8 w-8 text-emerald-400 mb-4 group-hover/card:scale-110 group-hover/card:-rotate-6 transition-transform" />
+                  <div>
+                    <h3 className="text-zinc-900 font-bold text-lg leading-tight mb-1">Gestión 24/7</h3>
+                    <p className="text-zinc-500 text-xs font-medium">Reservas sin caídas y en tiempo real</p>
+                  </div>
+                </div>
+              </BorderGlowCard>
             </div>
           </div>
         </section>
