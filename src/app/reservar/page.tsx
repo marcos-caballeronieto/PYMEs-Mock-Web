@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Calendar as CalendarIcon, Clock, ChevronRight, CheckCircle2, User, Phone, Mail, Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -27,6 +27,37 @@ export default function ReservarPage() {
     phone: "",
     email: ""
   });
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      // Allow a 20px tolerance for fractional zoom scaling, padding bugs, and native scrollbars
+      setCanScrollLeft(scrollLeft > 20);
+      setCanScrollRight(Math.ceil(scrollLeft + clientWidth) < scrollWidth - 20);
+    }
+  };
+
+  const handleScroll = () => {
+    checkScroll();
+  };
+
+  useEffect(() => {
+    if (step === 2 && !loadingTimes) {
+      // Delay to ensure the DOM is fully painted and CSS flexed before calculating widths.
+      const timer = setTimeout(checkScroll, 100);
+      
+      // Also attach a resize listener in case screen orientation changes
+      window.addEventListener('resize', checkScroll);
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener('resize', checkScroll);
+      };
+    }
+  }, [step, loadingTimes]);
 
   useEffect(() => {
     async function fetchAvailability() {
@@ -158,48 +189,77 @@ export default function ReservarPage() {
                       <p className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-4">Calendario Semanal</p>
                       
                       {loadingTimes ? (
-                        <div className="flex items-center justify-center p-12 text-primary bg-zinc-50 border-2 border-dashed border-zinc-200 rounded-2xl">
-                          <Loader2 className="w-10 h-10 animate-spin" />
+                        <div className="w-full overflow-hidden opacity-70">
+                          <div className="flex gap-3 sm:gap-4 min-w-[500px] sm:min-w-[600px]">
+                            {[1, 2, 3, 4, 5].map(i => (
+                              <div key={i} className="flex-1 flex flex-col gap-3">
+                                <div className="h-16 bg-zinc-200 animate-pulse rounded-xl" />
+                                <div className="flex flex-col gap-2">
+                                  {[1, 2, 3, 4, 5, 6].map(j => (
+                                    <div key={j} className="h-11 bg-zinc-100 animate-pulse rounded-lg" />
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       ) : (
-                        <div className="grid grid-cols-5 gap-3 sm:gap-4 overflow-x-auto min-w-[600px] pb-4">
-                          {MOCK_DATES.map((d) => (
-                            <div key={d.id} className="flex flex-col gap-3">
-                              <div className="text-center font-bold text-zinc-700 bg-zinc-100/80 p-3 rounded-xl border border-zinc-200">
-                                <div className="text-[10px] sm:text-xs uppercase tracking-widest text-zinc-500 mb-1">{d.label}</div>
-                                <div className="text-sm sm:text-base">{d.date}</div>
-                              </div>
-                              <div className="flex flex-col gap-2">
-                                {MOCK_TIMES.map((t) => {
-                                  const isBooked = bookedSpots.some(spot => spot.date === d.date && spot.time === t);
-                                  const isSelected = formData.date === d.date && formData.time === t;
-                                  
-                                  return (
-                                    <button
-                                      key={`${d.id}-${t}`}
-                                      disabled={isBooked}
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        updateForm("date", d.date);
-                                        updateForm("time", t);
-                                      }}
-                                      className={`
-                                        py-2.5 sm:py-3 rounded-lg font-bold border-2 transition-all text-xs sm:text-sm w-full
-                                        ${isBooked 
-                                          ? "bg-red-50 border-red-100 text-red-500/50 cursor-not-allowed line-through" 
-                                          : isSelected
-                                            ? "bg-primary border-primary text-white shadow-lg shadow-primary/30"
-                                            : "bg-emerald-50 border-emerald-100 text-emerald-600 hover:bg-emerald-500 hover:text-white hover:border-emerald-500 hover:shadow-lg hover:-translate-y-0.5"
-                                        }
-                                      `}
-                                    >
-                                      {t}
-                                    </button>
-                                  )
-                                })}
-                              </div>
+                        <div className="relative w-full max-w-full">
+                          {/* Left Fade */}
+                          {canScrollLeft && (
+                            <div className="absolute left-0 top-0 bottom-4 w-12 bg-gradient-to-r from-white to-transparent pointer-events-none z-10 transition-opacity duration-300"></div>
+                          )}
+                          
+                          {/* Right Fade */}
+                          {canScrollRight && (
+                            <div className="absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-white to-transparent pointer-events-none z-10 transition-opacity duration-300"></div>
+                          )}
+                          
+                          <div 
+                            ref={scrollContainerRef}
+                            onScroll={handleScroll}
+                            className="w-full overflow-x-auto pb-4 snap-x relative"
+                          >
+                            <div className="grid grid-cols-5 gap-3 sm:gap-4 min-w-[500px] sm:min-w-[600px] px-1">
+                              {MOCK_DATES.map((d) => (
+                                <div key={d.id} className="flex flex-col gap-3 snap-start relative">
+                                  <div className="text-center font-bold text-zinc-700 bg-zinc-100/80 p-3 rounded-xl border border-zinc-200">
+                                    <div className="text-[10px] sm:text-xs uppercase tracking-widest text-zinc-500 mb-1">{d.label}</div>
+                                    <div className="text-sm sm:text-base">{d.date}</div>
+                                  </div>
+                                  <div className="flex flex-col gap-2">
+                                    {MOCK_TIMES.map((t) => {
+                                      const isBooked = bookedSpots.some(spot => spot.date === d.date && spot.time === t);
+                                      const isSelected = formData.date === d.date && formData.time === t;
+                                      
+                                      return (
+                                        <button
+                                          key={`${d.id}-${t}`}
+                                          disabled={isBooked}
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            updateForm("date", d.date);
+                                            updateForm("time", t);
+                                          }}
+                                          className={`
+                                            py-2.5 sm:py-3 rounded-lg font-bold border-2 transition-all text-xs sm:text-sm w-full
+                                            ${isBooked 
+                                              ? "bg-red-50 border-red-100 text-red-500/50 cursor-not-allowed line-through" 
+                                              : isSelected
+                                                ? "bg-primary border-primary text-white shadow-lg shadow-primary/30"
+                                                : "bg-emerald-50 border-emerald-100 text-emerald-600 hover:bg-emerald-500 hover:text-white hover:border-emerald-500 hover:shadow-lg hover:-translate-y-0.5"
+                                            }
+                                          `}
+                                        >
+                                          {t}
+                                        </button>
+                                      )
+                                    })}
+                                  </div>
+                                </div>
+                              ))}
                             </div>
-                          ))}
+                          </div>
                         </div>
                       )}
                     </div>

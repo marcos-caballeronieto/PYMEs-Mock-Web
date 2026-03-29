@@ -1,6 +1,7 @@
 import { ArrowRight, Calendar, Clock, MessageSquare, ShieldCheck, Activity, Brain, Stethoscope, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { MobileMenu } from "@/components/MobileMenu";
 
 export default function Home() {
   return (
@@ -25,9 +26,10 @@ export default function Home() {
           <Link href="/admin" className="hidden lg:flex items-center justify-center hover:bg-zinc-100 rounded-full text-sm font-semibold px-4 py-2 transition-colors">
             Portal Admin
           </Link>
-          <Link href="/reservar" className="flex items-center justify-center bg-primary text-white hover:bg-primary/90 rounded-full px-7 py-2.5 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all font-bold">
+          <Link href="/reservar" className="hidden sm:flex items-center justify-center bg-primary text-white hover:bg-primary/90 rounded-full px-7 py-2.5 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all font-bold">
             Pedir Cita
           </Link>
+          <MobileMenu />
         </div>
       </header>
 

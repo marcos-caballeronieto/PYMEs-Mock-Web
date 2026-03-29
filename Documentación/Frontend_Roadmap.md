@@ -34,12 +34,12 @@ Este documento desglosa el plan de acción específico para completar todas las 
   - Interfaz gráfica (estadísticas) de conversiones de leads B2B.
 
 ## Fase 5: Refinamientos Finales
-- [ ] Agregar estados de "Carga" (*Loading Skeletons*) entre rutas.
-- [ ] Revisión exhaustiva del *Responsive Design* (Móviles y Tablets) de las nuevas páginas creadas.
+- [x] Agregar estados de "Carga" (*Loading Skeletons*) entre rutas.
+- [x] Revisión exhaustiva del *Responsive Design* (Móviles y Tablets) de las nuevas páginas creadas.
 - [ ] Componentizar mejor los botones y formularios compartidos (*Reusability*).
 
 ## Fase 6: Mejoras Extra de UX y Accesibilidad (Detectadas tras revisión QA)
-- [ ] **Menú Móvil (Hamburger):** Implementar un menú desplegable en el *Navbar* para resoluciones móviles, ya que actualmente los enlaces de navegación se ocultan con `hidden md:flex`.
-- [ ] **Notificaciones Toast:** Integrar `sonner` o similar para mostrar alertas rápidas (ej. "¡Sesión caducada!" o "Formulario enviado con éxito") en las esquinas de la pantalla.
+- [x] **Menú Móvil (Hamburger):** Implementar un menú desplegable en el *Navbar* para resoluciones móviles, ya que actualmente los enlaces de navegación se ocultan con `hidden md:flex`.
+- [x] **Notificaciones Toast:** Integrar `sonner` o similar para mostrar alertas rápidas (ej. "¡Sesión caducada!" o "Formulario enviado con éxito") en las esquinas de la pantalla.
 - [ ] **Accesibilidad (a11y):** Añadir `aria-labels` útiles a los botones solo-icono, y asegurar el contraste en el modo oscuro (forzar tema o darle soporte completo).
-- [ ] **SEO y OpenGraph:** Extender la configuración de `metadata` en el `layout.tsx` para incluir la imagen de previsualización al compartir la web (OpenGraph / X Cards).
+- [x] **SEO y OpenGraph:** Extender la configuración de `metadata` en el `layout.tsx` para incluir la imagen de previsualización al compartir la web (OpenGraph / X Cards).
