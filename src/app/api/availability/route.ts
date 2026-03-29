@@ -6,36 +6,31 @@ const MOCK_TIMES = ["09:00", "10:30", "12:00", "16:00", "17:30", "18:45"];
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const date = searchParams.get('date');
     const specialty = searchParams.get('specialty');
 
-    if (!date || !specialty) {
+    if (!specialty) {
       return NextResponse.json(
-        { error: 'Parámetros date y specialty requeridos' },
+        { error: 'Parámetro specialty requerido' },
         { status: 400 }
       );
     }
 
-    // Buscar las citas existentes para esa fecha y especialidad
+    // Buscar TODAS las citas existentes para esa especialidad (en la vida real se filtraría por un rango de fechas >= hoy)
     const existingAppointments = await prisma.appointment.findMany({
       where: {
-        date,
         specialty,
         status: {
           not: 'CANCELLED'
         }
       },
       select: {
+        date: true,
         time: true
       }
     });
 
-    const bookedTimes = new Set(existingAppointments.map((app: { time: string }) => app.time));
-    
-    // Filtrar los times base quitando los que ya están en base de datos
-    const availableTimes = MOCK_TIMES.filter(time => !bookedTimes.has(time));
-
-    return NextResponse.json({ availableTimes });
+    // Devolvemos el array de spots ocupados para que el frontend pinte el calendario
+    return NextResponse.json({ bookedSpots: existingAppointments });
     
   } catch (error: any) {
     console.error('Error fetching availability:', error);

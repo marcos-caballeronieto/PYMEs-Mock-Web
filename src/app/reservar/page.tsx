@@ -6,16 +6,19 @@ import Link from "next/link";
 import { toast } from "sonner";
 const SPECIALTIES = ["Medicina General", "Fisioterapia", "Psicología", "Análisis Clínicos"];
 const MOCK_DATES = [
-  { id: "today", label: "Hoy", date: "12 Mar" },
-  { id: "tomorrow", label: "Mañana", date: "13 Mar" },
-  { id: "next", label: "Jueves", date: "14 Mar" }
+  { id: "d1", label: "Lunes", date: "11 Mar" },
+  { id: "d2", label: "Martes", date: "12 Mar" },
+  { id: "d3", label: "Miércoles", date: "13 Mar" },
+  { id: "d4", label: "Jueves", date: "14 Mar" },
+  { id: "d5", label: "Viernes", date: "15 Mar" }
 ];
+const MOCK_TIMES = ["09:00", "10:30", "12:00", "16:00", "17:30", "18:45"];
 
 export default function ReservarPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [loadingTimes, setLoadingTimes] = useState(false);
-  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
+  const [bookedSpots, setBookedSpots] = useState<{date: string, time: string}[]>([]);
   const [formData, setFormData] = useState({
     specialty: "",
     date: "",
@@ -26,27 +29,26 @@ export default function ReservarPage() {
   });
 
   useEffect(() => {
-    async function fetchTimes() {
-      if (step !== 2 || !formData.date || !formData.specialty) return;
+    async function fetchAvailability() {
+      if (step !== 2 || !formData.specialty) return;
       
       setLoadingTimes(true);
-      setFormData(prev => ({ ...prev, time: "" })); // Reset selected time
       
       try {
-        const response = await fetch(`/api/availability?date=${encodeURIComponent(formData.date)}&specialty=${encodeURIComponent(formData.specialty)}`);
+        const response = await fetch(`/api/availability?specialty=${encodeURIComponent(formData.specialty)}`);
         if (response.ok) {
           const data = await response.json();
-          setAvailableTimes(data.availableTimes || []);
+          setBookedSpots(data.bookedSpots || []);
         }
       } catch (error) {
-        console.error("Error cargando horarios:", error);
+        console.error("Error cargando disponibilidad:", error);
       } finally {
         setLoadingTimes(false);
       }
     }
 
-    fetchTimes();
-  }, [step, formData.date, formData.specialty]);
+    fetchAvailability();
+  }, [step, formData.specialty]);
 
   const updateForm = (key: keyof typeof formData, value: string) => {
     setFormData(prev => ({ ...prev, [key]: value }));
@@ -153,52 +155,54 @@ export default function ReservarPage() {
                   
                   <div className="space-y-6 md:pl-14">
                     <div>
-                      <p className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-3">Días disponibles</p>
-                      <div className="flex gap-3 overflow-x-auto pb-2">
-                        {MOCK_DATES.map((d) => (
-                          <div
-                            key={d.id}
-                            onClick={() => updateForm("date", d.label)}
-                            className={`min-w-[120px] border-2 rounded-2xl p-4 cursor-pointer transition-all text-center
-                              ${formData.date === d.label ? "border-primary bg-primary text-white" : "border-zinc-100 hover:border-primary/40 text-zinc-700"}
-                            `}
-                          >
-                            <p className="font-bold">{d.label}</p>
-                            <p className={`text-sm ${formData.date === d.label ? "text-white/80" : "text-zinc-500"}`}>{d.date}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {formData.date && (
-                      <div className="animate-in fade-in duration-300">
-                        <p className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-3">Horas libres</p>
-                        
-                        {loadingTimes ? (
-                          <div className="flex items-center justify-center p-8 text-primary">
-                            <Loader2 className="w-8 h-8 animate-spin" />
-                          </div>
-                        ) : availableTimes.length > 0 ? (
-                          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                            {availableTimes.map((t) => (
-                              <div
-                                key={t}
-                                onClick={() => updateForm("time", t)}
-                                className={`border-2 rounded-xl py-3 cursor-pointer transition-all text-center font-bold
-                                  ${formData.time === t ? "border-primary/20 bg-primary/10 text-primary" : "border-zinc-100 hover:border-primary/40 text-zinc-600"}
-                                `}
-                              >
-                                {t}
+                      <p className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-4">Calendario Semanal</p>
+                      
+                      {loadingTimes ? (
+                        <div className="flex items-center justify-center p-12 text-primary bg-zinc-50 border-2 border-dashed border-zinc-200 rounded-2xl">
+                          <Loader2 className="w-10 h-10 animate-spin" />
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-5 gap-3 sm:gap-4 overflow-x-auto min-w-[600px] pb-4">
+                          {MOCK_DATES.map((d) => (
+                            <div key={d.id} className="flex flex-col gap-3">
+                              <div className="text-center font-bold text-zinc-700 bg-zinc-100/80 p-3 rounded-xl border border-zinc-200">
+                                <div className="text-[10px] sm:text-xs uppercase tracking-widest text-zinc-500 mb-1">{d.label}</div>
+                                <div className="text-sm sm:text-base">{d.date}</div>
                               </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="text-center p-6 border-2 border-dashed border-zinc-200 rounded-xl text-zinc-500">
-                            No quedan horas disponibles para este día y especialidad.
-                          </div>
-                        )}
-                      </div>
-                    )}
+                              <div className="flex flex-col gap-2">
+                                {MOCK_TIMES.map((t) => {
+                                  const isBooked = bookedSpots.some(spot => spot.date === d.date && spot.time === t);
+                                  const isSelected = formData.date === d.date && formData.time === t;
+                                  
+                                  return (
+                                    <button
+                                      key={`${d.id}-${t}`}
+                                      disabled={isBooked}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        updateForm("date", d.date);
+                                        updateForm("time", t);
+                                      }}
+                                      className={`
+                                        py-2.5 sm:py-3 rounded-lg font-bold border-2 transition-all text-xs sm:text-sm w-full
+                                        ${isBooked 
+                                          ? "bg-red-50 border-red-100 text-red-500/50 cursor-not-allowed line-through" 
+                                          : isSelected
+                                            ? "bg-primary border-primary text-white shadow-lg shadow-primary/30"
+                                            : "bg-emerald-50 border-emerald-100 text-emerald-600 hover:bg-emerald-500 hover:text-white hover:border-emerald-500 hover:shadow-lg hover:-translate-y-0.5"
+                                        }
+                                      `}
+                                    >
+                                      {t}
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div className="pt-8 border-t border-zinc-100 md:pl-14 flex justify-between items-center">

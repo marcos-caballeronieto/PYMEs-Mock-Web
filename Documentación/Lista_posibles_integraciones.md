@@ -1,0 +1,14 @@
+- WhatsApp Business API
+- n8n
+- Supabase
+- Next.js
+- Tailwind CSS
+- Shadcn UI
+- GPT-4o-mini
+- Twilio
+- Google Sheets
+- Telegram
+- Vercel
+- Prisma
+- Google Calendar
+- Slack 
