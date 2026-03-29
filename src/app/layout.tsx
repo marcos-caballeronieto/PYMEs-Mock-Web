@@ -12,6 +12,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import { Toaster } from "@/components/ui/sonner";
+
 export const metadata: Metadata = {
   title: "SmartClinic - Tu salud, sin esperas",
   description: "Transformamos la experiencia clínica mediante automatización e inteligencia artificial.",
@@ -25,9 +27,10 @@ export default function RootLayout({
   return (
     <html lang="es" className="scroll-smooth">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased selection:bg-primary/20`}
       >
         {children}
+        <Toaster position="bottom-right" richColors />
       </body>
     </html>
   );

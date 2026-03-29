@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Calendar as CalendarIcon, Clock, ChevronRight, CheckCircle2, User, Phone, Mail, Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-
+import { toast } from "sonner";
 const SPECIALTIES = ["Medicina General", "Fisioterapia", "Psicología", "Análisis Clínicos"];
 const MOCK_DATES = [
   { id: "today", label: "Hoy", date: "12 Mar" },
@@ -35,13 +35,29 @@ export default function ReservarPage() {
     e.preventDefault();
     setLoading(true);
     
-    // Placeholder Endpoint Request
     try {
-      // await fetch('https://jsonplaceholder.typicode.com/posts', { method: 'POST', body: JSON.stringify(formData) });
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate network request
+      const response = await fetch('/api/booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.error || 'Error procesando la cita');
+      }
+
+      toast.success('¡Cita Confirmada!', {
+        description: 'Hemos enviado un correo con los detalles de la reserva.'
+      });
+      setStep(4); // Success Step
+    } catch (error: any) {
+      toast.error('Error al agendar', {
+        description: error.message || 'Ha ocurrido un error inesperado, por favor intenta de nuevo.'
+      });
     } finally {
       setLoading(false);
-      setStep(4); // Success Step
     }
   };
 
