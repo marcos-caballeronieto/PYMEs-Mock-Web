@@ -181,7 +181,7 @@ export default function AdminDashboard() {
           </div>
         </div>
         <div className="flex items-center gap-4 text-sm font-medium">
-          <span className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">SC</span>
+          {/* Iniciales eliminadas */}
         </div>
       </header>
 

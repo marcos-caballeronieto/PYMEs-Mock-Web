@@ -1,6 +1,14 @@
 "use client";
+import { useState, useEffect, useRef } from 'react';
+import { createClient } from '@/lib/supabase/client';
 
-import { useState, useEffect, useRef } from "react";
+// Existing imports ... (keep other imports above)
+
+// After existing imports, ensure the new import is placed appropriately
+
+// Inside ReservarPage component, add the following useEffect after other useEffects:
+
+
 import { Calendar as CalendarIcon, Clock, ChevronRight, ChevronLeft, CheckCircle2, User, Phone, Mail, Loader2, ArrowLeft, Activity } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -110,6 +118,27 @@ export default function ReservarPage() {
 
     fetchAvailability();
   }, [step, formData.specialty]);
+
+  // Load user data on component mount and set initial form fields if user is logged in
+  useEffect(() => {
+    async function loadUserData() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const email = user.email ?? '';
+        const meta = user.user_metadata || {};
+        const name = meta.full_name || `${meta.first_name ?? ''} ${meta.last_name ?? ''}`.trim();
+        const phone = meta.phone ?? '';
+        setFormData(prev => ({
+          ...prev,
+          name: name || prev.name,
+          email: email || prev.email,
+          phone: phone || prev.phone,
+        }));
+      }
+    }
+    loadUserData();
+  }, []);
 
   const updateForm = (key: keyof typeof formData, value: string) => {
     setFormData(prev => ({ ...prev, [key]: value }));
