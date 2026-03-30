@@ -1,8 +1,8 @@
 import { ArrowRight, Calendar, Clock, MessageSquare, ShieldCheck, Activity, Brain, Stethoscope, ChevronRight, Zap } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { MobileMenu } from "@/components/MobileMenu";
 import { BorderGlowCard } from "@/components/ui/BorderGlowCard";
+import { Navbar } from "@/components/Navbar";
 
 export default function Home() {
   return (
@@ -13,26 +13,7 @@ export default function Home() {
       </div>
 
       {/* Navbar */}
-      <header className="px-6 lg:px-12 py-5 flex items-center justify-between border-b border-border bg-background/60 backdrop-blur-xl sticky top-0 z-50">
-        <div className="flex items-center gap-2 font-bold text-2xl tracking-tight text-primary">
-          <Activity className="h-7 w-7" />
-          <span>SmartClinic</span>
-        </div>
-        <nav className="hidden md:flex items-center gap-10 text-sm font-semibold text-muted-foreground">
-          <a href="#how-it-works" className="hover:text-primary transition-all duration-300">Cómo funciona</a>
-          <a href="#services" className="hover:text-primary transition-all duration-300">Especialidades</a>
-          <a href="#testimonials" className="hover:text-primary transition-all duration-300">Testimonios</a>
-        </nav>
-        <div className="flex items-center gap-4">
-          <Link href="/admin" className="hidden lg:flex items-center justify-center hover:bg-zinc-100 rounded-full text-sm font-semibold px-4 py-2 transition-colors">
-            Portal Admin
-          </Link>
-          <Link href="/reservar" className="hidden sm:flex items-center justify-center bg-primary text-white hover:bg-primary/90 rounded-full px-7 py-2.5 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all font-bold">
-            Pedir Cita
-          </Link>
-          <MobileMenu />
-        </div>
-      </header>
+      <Navbar />
 
       <main className="flex-1">
         {/* Hero Section */}

@@ -14,10 +14,10 @@ Este documento desglosa las fases de desarrollo para la plataforma **SmartClinic
 ## 🟡 Fase 2: Motor de Datos y Autenticación (Supabase y Auth Real)
 *   [x] Motor Base de Datos Provisional (Prisma + SQLite implementado).
 *   [x] Migración del esquema a Supabase (Tablas: `clinics`, `patients`, `appointments`).
-*   [ ] Configuración de Row Level Security (RLS) para proteger los datos médicos.
-*   [ ] Sistema de log-in para clientes con correo electrónico y contraseña. Para almacenar citas y otra información.
-*   [ ] Flujo de autenticación para administradores (/admin) vía Supabase Auth.
-*   [ ] Middleware de protección de rutas.
+*   [x] Configuración de Row Level Security (RLS) para proteger los datos médicos (Script generado).
+*   [x] Sistema de log-in para clientes con correo electrónico y contraseña (Implementado).
+*   [x] Flujo de autenticación para administradores (/admin) vía Supabase Auth.
+*   [x] Middleware de protección de rutas.
 
 ## 🔴 Fase 3: Integración WhatsApp API y Bot de Reservas (IA Agente)
 *   [ ] **Setup de WhatsApp Business API:** Configuración del proveedor (Twilio/Meta).
