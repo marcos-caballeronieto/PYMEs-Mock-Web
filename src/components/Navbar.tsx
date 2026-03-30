@@ -29,6 +29,7 @@ export async function Navbar() {
 
         {user ? (
           <div className="flex items-center gap-4 border-l border-zinc-100 pl-4">
+            {/* Pasamos el objeto user completo — incluye app_metadata con el rol */}
             <UserNav user={user} />
           </div>
         ) : (

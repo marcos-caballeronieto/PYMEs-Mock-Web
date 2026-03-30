@@ -1,9 +1,21 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
+async function guardAdmin() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+  if (user.app_metadata?.role !== 'admin') return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });
+  return null; // null significa "ok, continuar"
+}
+
 export async function GET() {
+  const denied = await guardAdmin();
+  if (denied) return denied;
+
   try {
     const appointments = await prisma.appointment.findMany({
       include: {
@@ -22,6 +34,9 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
+  const denied = await guardAdmin();
+  if (denied) return denied;
+
   try {
     const body = await request.json();
     const { id, action, date, time } = body;
@@ -81,6 +96,9 @@ export async function PATCH(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const denied = await guardAdmin();
+  if (denied) return denied;
+
   try {
     const body = await request.json();
     const { name, email, phone, specialty, date, time } = body;

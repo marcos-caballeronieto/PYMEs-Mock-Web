@@ -1,14 +1,11 @@
-import { cookies } from "next/headers";
-import LoginMock from "./LoginMock";
+import { requireAdmin } from "@/lib/auth";
 import AdminDashboard from "./AdminDashboard";
 
 export default async function AdminPage() {
-  const cookieStore = await cookies();
-  const isAdmin = cookieStore.get("admin_auth")?.value === "1";
-
-  if (!isAdmin) {
-    return <LoginMock />;
-  }
+  // requireAdmin() redirige automáticamente si:
+  // - No hay sesión activa → /auth/login?redirectTo=/admin
+  // - El usuario no tiene role: 'admin' → /
+  await requireAdmin();
 
   return <AdminDashboard />;
 }

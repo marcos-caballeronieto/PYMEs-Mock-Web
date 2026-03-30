@@ -1,12 +1,13 @@
 "use client";
 
-import { User as UserIcon, LogOut, Settings, CreditCard } from 'lucide-react';
+import { User as UserIcon, LogOut, CreditCard, LayoutDashboard, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { signout } from '@/actions/auth';
 import { useState } from 'react';
 
 export function UserNav({ user }: { user: any }) {
   const [isOpen, setIsOpen] = useState(false);
+  const isAdminUser = user?.app_metadata?.role === 'admin';
 
   return (
     <div className="relative">
@@ -27,7 +28,7 @@ export function UserNav({ user }: { user: any }) {
             className="fixed inset-0 z-40" 
             onClick={() => setIsOpen(false)} 
           />
-          <div className="absolute right-0 mt-3 w-56 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl py-2 z-50 animate-in fade-in zoom-in duration-200">
+          <div className="absolute right-0 mt-3 w-60 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl py-2 z-50 animate-in fade-in zoom-in duration-200">
             <div className="px-4 py-3 border-b border-white/5 mb-2">
               <p className="text-sm font-bold text-white truncate">
                 {user.user_metadata?.first_name} {user.user_metadata?.last_name}
@@ -35,6 +36,11 @@ export function UserNav({ user }: { user: any }) {
               <p className="text-xs text-zinc-500 truncate mt-0.5">
                 {user.email}
               </p>
+              {isAdminUser && (
+                <span className="inline-flex items-center gap-1 mt-1.5 text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full">
+                  <ShieldCheck className="w-3 h-3" /> Admin
+                </span>
+              )}
             </div>
 
             <Link 
@@ -45,13 +51,16 @@ export function UserNav({ user }: { user: any }) {
               <CreditCard className="w-4 h-4" /> Mis Citas
             </Link>
 
-            <Link 
-              href="/admin" 
-              className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all text-left"
-              onClick={() => setIsOpen(false)}
-            >
-              <Settings className="w-4 h-4" /> Configuración (Demo)
-            </Link>
+            {/* Enlace al Admin Dashboard — solo visible para usuarios con role: admin */}
+            {isAdminUser && (
+              <Link 
+                href="/admin" 
+                className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-primary hover:bg-primary/10 transition-all text-left border-t border-white/5 mt-1 pt-3"
+                onClick={() => setIsOpen(false)}
+              >
+                <LayoutDashboard className="w-4 h-4" /> Panel de Administración
+              </Link>
+            )}
 
             <div className="px-2 pt-2 mt-2 border-t border-white/5">
               <button 
